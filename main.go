@@ -1,12 +1,14 @@
 package main
 
 import (
+	"events_app/db"
 	"events_app/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	db.InitDB()
 	server := gin.Default()
 
 	server.GET("/events", getEvents)
@@ -19,7 +21,11 @@ func main() {
 }
 
 func getEvents(ctx *gin.Context) {
-	events := models.GetAllEvents()
+	events, err := models.GetAllEvents()
+	if err != nil {
+		ctx.JSON(500, gin.H{"message": "Could not get events"})
+		return
+	}
 	ctx.JSON(200, events)
 }
 
@@ -32,6 +38,11 @@ func createEvent(ctx *gin.Context) {
 	}
 	event.Id = 1
 	event.UserID = 2
+	err = event.Save()
+	if err != nil {
+		ctx.JSON(500, gin.H{"message": "Could not create event"})
+		return
+	}
+
 	ctx.JSON(201, gin.H{"message": "Event created successfully", "event": event})
-	event.Save()
 }
