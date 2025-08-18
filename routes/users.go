@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SignUp(ctx *gin.Context) {
+func signUp(ctx *gin.Context) {
 	var user models.User
 	err := ctx.ShouldBindJSON(&user)
 	if err != nil {
@@ -23,7 +23,7 @@ func SignUp(ctx *gin.Context) {
 	ctx.JSON(201, gin.H{"message": "User created successfully", "user": user})
 }
 
-func Login(ctx *gin.Context) {
+func login(ctx *gin.Context) {
 	var user models.User
 
 	err := ctx.ShouldBindJSON(&user)

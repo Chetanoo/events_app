@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetEvents(ctx *gin.Context) {
+func getEvents(ctx *gin.Context) {
 	events, err := models.GetAllEvents()
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": "Could not get events"})
@@ -16,7 +16,7 @@ func GetEvents(ctx *gin.Context) {
 	ctx.JSON(200, events)
 }
 
-func GetEvent(ctx *gin.Context) {
+func getEvent(ctx *gin.Context) {
 	idInt64, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ctx.JSON(400, gin.H{"message": "Invalid event id"})
@@ -30,7 +30,7 @@ func GetEvent(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"message": "Event fetched successfully", "event": event})
 }
 
-func UpdateEvent(ctx *gin.Context) {
+func updateEvent(ctx *gin.Context) {
 	idInt64, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ctx.JSON(400, gin.H{"message": "Invalid event id"})
@@ -62,7 +62,7 @@ func UpdateEvent(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"message": "Event updated successfully"})
 }
 
-func CreateEvent(ctx *gin.Context) {
+func createEvent(ctx *gin.Context) {
 	var event models.Event
 	err := ctx.ShouldBindJSON(&event)
 	if err != nil {
@@ -81,7 +81,7 @@ func CreateEvent(ctx *gin.Context) {
 	ctx.JSON(201, gin.H{"message": "Event created successfully", "event": event})
 }
 
-func DeleteEvent(ctx *gin.Context) {
+func deleteEvent(ctx *gin.Context) {
 	idInt64, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		ctx.JSON(400, gin.H{"message": "Invalid event id"})
