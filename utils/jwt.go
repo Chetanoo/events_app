@@ -23,7 +23,7 @@ func GenerateToken(email string, userId int64) (string, error) {
 	return signedString, nil
 }
 
-func VerifyToken(tokenString string) error {
+func VerifyToken(tokenString string) (int64, error) {
 	parsedToken, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC) // typechecking in go
 		if !ok {
@@ -32,11 +32,16 @@ func VerifyToken(tokenString string) error {
 		return []byte(secretKey), nil
 	})
 	if err != nil {
-		return errors.New("could not verify token")
+		return 0, errors.New("could not verify token")
 	}
 	tokenIsValid := parsedToken.Valid
 	if !tokenIsValid {
-		return errors.New("invalid token")
+		return 0, errors.New("invalid token")
 	}
-	return nil
+	claims, ok := parsedToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, errors.New("invalid token claims")
+	}
+	userId := int64(claims["userId"].(float64))
+	return userId, nil
 }

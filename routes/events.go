@@ -2,7 +2,6 @@ package routes
 
 import (
 	"events_app/models"
-	"events_app/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -37,11 +36,17 @@ func UpdateEvent(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"message": "Invalid event id"})
 		return
 	}
-	_, err = models.GetEventById(idInt64)
+	userId := ctx.GetInt64("userId")
+	event, err := models.GetEventById(idInt64)
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": "Could not get event"})
 		return
 	}
+	if event.UserID != userId {
+		ctx.JSON(401, gin.H{"message": "Unauthorized"})
+		return
+	}
+
 	var updatedEvent models.Event
 	err = ctx.ShouldBindJSON(&updatedEvent)
 	if err != nil {
@@ -58,28 +63,17 @@ func UpdateEvent(ctx *gin.Context) {
 }
 
 func CreateEvent(ctx *gin.Context) {
-	token := ctx.Request.Header.Get("Authorization")
-
-	if token == "" {
-		ctx.JSON(401, gin.H{"message": "Unauthorized"})
-		return
-	}
-
-	err := utils.VerifyToken(token)
-	if err != nil {
-		ctx.JSON(401, gin.H{"message": "Unauthorized"})
-		return
-	}
-
 	var event models.Event
-	err = ctx.ShouldBindJSON(&event)
+	err := ctx.ShouldBindJSON(&event)
 	if err != nil {
 		ctx.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
-	event.UserID = 2
+	userId := ctx.GetInt64("userId")
+	event.UserID = userId
 	err = event.Save()
 	if err != nil {
+
 		ctx.JSON(500, gin.H{"message": "Could not create event"})
 		return
 	}
@@ -93,9 +87,14 @@ func DeleteEvent(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"message": "Invalid event id"})
 		return
 	}
+	userId := ctx.GetInt64("userId")
 	event, err := models.GetEventById(idInt64)
 	if err != nil {
 		ctx.JSON(500, gin.H{"message": "Could not get event"})
+		return
+	}
+	if event.UserID != userId {
+		ctx.JSON(401, gin.H{"message": "Unauthorized"})
 		return
 	}
 	err = event.Delete()

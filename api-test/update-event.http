@@ -1,8 +1,9 @@
 PUT http://localhost:3000/events/1
 content-type: application/json
+authorization:
 
 {
-  "name": "TestName",
+  "name": "TestNameChanged",
   "description": "TestDescription2",
   "location": "TestLocation",
   "dateTime": "2025-01-01T15:30:00.000Z"
