@@ -2,6 +2,7 @@ package routes
 
 import (
 	"events_app/models"
+	"events_app/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -57,13 +58,25 @@ func UpdateEvent(ctx *gin.Context) {
 }
 
 func CreateEvent(ctx *gin.Context) {
+	token := ctx.Request.Header.Get("Authorization")
+
+	if token == "" {
+		ctx.JSON(401, gin.H{"message": "Unauthorized"})
+		return
+	}
+
+	err := utils.VerifyToken(token)
+	if err != nil {
+		ctx.JSON(401, gin.H{"message": "Unauthorized"})
+		return
+	}
+
 	var event models.Event
-	err := ctx.ShouldBindJSON(&event)
+	err = ctx.ShouldBindJSON(&event)
 	if err != nil {
 		ctx.JSON(400, gin.H{"message": err.Error()})
 		return
 	}
-	event.Id = 1
 	event.UserID = 2
 	err = event.Save()
 	if err != nil {
